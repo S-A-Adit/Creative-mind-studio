@@ -1,2 +1,2 @@
 # creative mind studio
-this is project for july challenge oraganised  by ibm 
+An IBM Granite-powered multi-agent creative strategy room that validates, stress-tests, and transforms raw ideas into execution-ready creative projects.
