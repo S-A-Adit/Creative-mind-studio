@@ -2,22 +2,17 @@
 Tests for LangGraph DebateState and debate_graph.
 No real IBM Granite calls — Granite is mocked at the generate() level.
 """
+
 from __future__ import annotations
 
 import json
 import uuid
-from unittest.mock import patch, AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from app.graph.state import DebateState
 from app.graph.graph import debate_graph
 from app.schemas.granite import GraniteResponse
-from app.schemas.agents import (
-    CreativeDirectorOutput,
-    RiskCriticOutput,
-    TechnicalMarketOutput,
-)
 
 
 # ---------------------------------------------------------------------------
@@ -44,39 +39,68 @@ def _seed_state(raw_idea: str = "An AI-powered meditation app") -> dict:
 # ---------------------------------------------------------------------------
 # Mock Granite responses for each agent
 # ---------------------------------------------------------------------------
-_CD_JSON = json.dumps({
-    "originality_score": 7, "emotional_direction": "inspiring",
-    "key_themes": ["AI", "travel"], "suggestions": ["Add social"], "ai_engine": "IBM Granite",
-})
-_RC_JSON = json.dumps({
-    "risks": [{"risk": "competition", "severity": "medium", "mitigation": "niche down"}],
-    "critical_assumptions": ["users share data"], "overall_risk_level": "medium", "ai_engine": "IBM Granite",
-})
-_TM_JSON = json.dumps({
-    "feasibility_score": 8, "cost_estimate": "$100k", "market_size": "$10B",
-    "competitors": ["Google"], "recommendation": "Build", "rationale": "strong gap", "ai_engine": "IBM Granite",
-})
+_CD_JSON = json.dumps(
+    {
+        "originality_score": 7,
+        "emotional_direction": "inspiring",
+        "key_themes": ["AI", "travel"],
+        "suggestions": ["Add social"],
+        "ai_engine": "IBM Granite",
+    }
+)
+_RC_JSON = json.dumps(
+    {
+        "risks": [{"risk": "competition", "severity": "medium", "mitigation": "niche down"}],
+        "critical_assumptions": ["users share data"],
+        "overall_risk_level": "medium",
+        "ai_engine": "IBM Granite",
+    }
+)
+_TM_JSON = json.dumps(
+    {
+        "feasibility_score": 8,
+        "cost_estimate": "$100k",
+        "market_size": "$10B",
+        "competitors": ["Google"],
+        "recommendation": "Build",
+        "rationale": "strong gap",
+        "ai_engine": "IBM Granite",
+    }
+)
 
-_SY_JSON = json.dumps({
-    "strengths": ["Strong originality"], "weaknesses": ["High competition"],
-    "scored_dimensions": [
-        {"dimension": "Originality", "score": 8, "reason": "novel"},
-        {"dimension": "Feasibility", "score": 7, "reason": "achievable"},
-        {"dimension": "Market Opportunity", "score": 8, "reason": "large TAM"},
-        {"dimension": "Risk Profile", "score": 6, "reason": "medium risk"},
-        {"dimension": "Execution Readiness", "score": 7, "reason": "clear MVP"},
-    ],
-    "synthesis_summary": "Promising AI travel app.", "overall_recommendation": "Build", "ai_engine": "IBM Granite",
-})
+_SY_JSON = json.dumps(
+    {
+        "strengths": ["Strong originality"],
+        "weaknesses": ["High competition"],
+        "scored_dimensions": [
+            {"dimension": "Originality", "score": 8, "reason": "novel"},
+            {"dimension": "Feasibility", "score": 7, "reason": "achievable"},
+            {"dimension": "Market Opportunity", "score": 8, "reason": "large TAM"},
+            {"dimension": "Risk Profile", "score": 6, "reason": "medium risk"},
+            {"dimension": "Execution Readiness", "score": 7, "reason": "clear MVP"},
+        ],
+        "synthesis_summary": "Promising AI travel app.",
+        "overall_recommendation": "Build",
+        "ai_engine": "IBM Granite",
+    }
+)
 
 
 def _mock_generate():
     """Returns an AsyncMock that cycles through CD → RC → TM → Synthesis responses."""
     responses = [
-        GraniteResponse(content=_CD_JSON, raw=_CD_JSON, fallback_used=False, ai_engine="IBM Granite"),
-        GraniteResponse(content=_RC_JSON, raw=_RC_JSON, fallback_used=False, ai_engine="IBM Granite"),
-        GraniteResponse(content=_TM_JSON, raw=_TM_JSON, fallback_used=False, ai_engine="IBM Granite"),
-        GraniteResponse(content=_SY_JSON, raw=_SY_JSON, fallback_used=False, ai_engine="IBM Granite"),
+        GraniteResponse(
+            content=_CD_JSON, raw=_CD_JSON, fallback_used=False, ai_engine="IBM Granite"
+        ),
+        GraniteResponse(
+            content=_RC_JSON, raw=_RC_JSON, fallback_used=False, ai_engine="IBM Granite"
+        ),
+        GraniteResponse(
+            content=_TM_JSON, raw=_TM_JSON, fallback_used=False, ai_engine="IBM Granite"
+        ),
+        GraniteResponse(
+            content=_SY_JSON, raw=_SY_JSON, fallback_used=False, ai_engine="IBM Granite"
+        ),
     ]
     mock = AsyncMock(side_effect=responses)
     return mock
@@ -88,10 +112,18 @@ def _mock_generate():
 def test_debate_state_has_required_keys():
     state = _seed_state()
     required_keys = {
-        "project_id", "session_id", "raw_idea", "messages",
-        "current_agent", "creative_director_output", "risk_critic_output",
-        "technical_market_output", "synthesis_output",
-        "error", "fallback_used", "ai_engine",
+        "project_id",
+        "session_id",
+        "raw_idea",
+        "messages",
+        "current_agent",
+        "creative_director_output",
+        "risk_critic_output",
+        "technical_market_output",
+        "synthesis_output",
+        "error",
+        "fallback_used",
+        "ai_engine",
     }
     assert required_keys.issubset(set(state.keys()))
 
@@ -120,6 +152,7 @@ def test_graph_has_correct_nodes():
 def test_graph_compiles_without_error():
     """Importing and compiling the graph should not raise."""
     from app.graph.graph import debate_graph as g
+
     assert g is not None
 
 

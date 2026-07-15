@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import logging
 
-from langgraph.graph import END, START, StateGraph
 from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import END, START, StateGraph
 
 from app.graph.state import DebateState
 
@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 from app.agents.creative_director import creative_director_node
 from app.agents.risk_critic import risk_critic_node
-from app.agents.technical_market import technical_market_node
 from app.agents.synthesis import synthesis_node
+from app.agents.technical_market import technical_market_node
 
 
 # ---------------------------------------------------------------------------
@@ -70,8 +70,8 @@ def get_graph_png() -> bytes | None:
 # ---------------------------------------------------------------------------
 # BoardroomResult builder — converts final DebateState into validated response
 # ---------------------------------------------------------------------------
+
 from app.schemas.boardroom import AgentMessageSchema, BoardroomResult
-from pydantic import ValidationError
 
 
 def build_boardroom_result(state: DebateState) -> BoardroomResult:
@@ -98,6 +98,7 @@ def build_boardroom_result(state: DebateState) -> BoardroomResult:
 
     # Extract scored_dimensions safely
     from app.schemas.agents import ScoredDimension
+
     scored_dimensions = [
         ScoredDimension(**d) if isinstance(d, dict) else d
         for d in synthesis.get("scored_dimensions", [])

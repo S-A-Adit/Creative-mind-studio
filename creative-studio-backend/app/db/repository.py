@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -48,18 +47,12 @@ async def create_session(
     return session
 
 
-async def get_session(
-    db: AsyncSession, session_id: uuid.UUID
-) -> BoardroomSession | None:
-    result = await db.execute(
-        select(BoardroomSession).where(BoardroomSession.id == session_id)
-    )
+async def get_session(db: AsyncSession, session_id: uuid.UUID) -> BoardroomSession | None:
+    result = await db.execute(select(BoardroomSession).where(BoardroomSession.id == session_id))
     return result.scalar_one_or_none()
 
 
-async def get_latest_session(
-    db: AsyncSession, project_id: uuid.UUID
-) -> BoardroomSession | None:
+async def get_latest_session(db: AsyncSession, project_id: uuid.UUID) -> BoardroomSession | None:
     result = await db.execute(
         select(BoardroomSession)
         .where(BoardroomSession.project_id == project_id)
@@ -112,9 +105,7 @@ async def save_message(
     return message
 
 
-async def get_messages(
-    db: AsyncSession, session_id: uuid.UUID
-) -> list[AgentMessage]:
+async def get_messages(db: AsyncSession, session_id: uuid.UUID) -> list[AgentMessage]:
     result = await db.execute(
         select(AgentMessage)
         .where(AgentMessage.session_id == session_id)
@@ -156,10 +147,9 @@ async def save_idea_version(
 ) -> IdeaVersion:
     # Determine next version number
     from sqlalchemy import func as sqlfunc
+
     result = await db.execute(
-        select(sqlfunc.max(IdeaVersion.version_number)).where(
-            IdeaVersion.project_id == project_id
-        )
+        select(sqlfunc.max(IdeaVersion.version_number)).where(IdeaVersion.project_id == project_id)
     )
     max_version = result.scalar_one_or_none() or 0
 

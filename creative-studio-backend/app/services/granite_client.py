@@ -62,7 +62,9 @@ def _get_model() -> ModelInference:
                 "temperature": settings.GRANITE_TEMPERATURE,
             },
         )
-        logger.info("IBM Granite model initialised: %s | url: %s", settings.WATSONX_MODEL_ID, api_url)
+        logger.info(
+            "IBM Granite model initialised: %s | url: %s", settings.WATSONX_MODEL_ID, api_url
+        )
     return _model
 
 
@@ -197,8 +199,14 @@ async def generate(
             )
 
         except asyncio.TimeoutError:
-            logger.warning("Granite call timed out on attempt %d (timeout=%ds)", attempt, settings.GRANITE_TIMEOUT_SECONDS)
-            last_error = asyncio.TimeoutError(f"Granite timed out after {settings.GRANITE_TIMEOUT_SECONDS}s")
+            logger.warning(
+                "Granite call timed out on attempt %d (timeout=%ds)",
+                attempt,
+                settings.GRANITE_TIMEOUT_SECONDS,
+            )
+            last_error = asyncio.TimeoutError(
+                f"Granite timed out after {settings.GRANITE_TIMEOUT_SECONDS}s"
+            )
 
         except GraniteResponseError:
             # JSON parse failure — no point retrying, raise immediately

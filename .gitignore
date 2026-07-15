@@ -1,37 +1,26 @@
-# Environment
+# Environment & Secrets
 .env
-.env.local
-.env.*.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
 
-# Python
+# Python, Caches & Environments
 **/__pycache__/
 **/*.py[cod]
-**/*.pyo
-**/*.pyd
-**/.Python
 **/*.egg-info/
-dist/
-build/
-.eggs/
 **/.venv/
 **/venv/
 **/env/
+dist/
+build/
+.eggs/
 
-# Testing
+# Testing, Linting & Reports
 **/.pytest_cache/
+**/.ruff_cache/
 **/.coverage
 htmlcov/
 
-# Ruff
-**/.ruff_cache/
-
-# IDE
+# IDEs & System Files
 .vscode/
 .idea/
-
-# OS
 .DS_Store
 Thumbs.db

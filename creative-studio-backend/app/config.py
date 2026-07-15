@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Resolve .env path — works regardless of where the process is started from.
 # Checks: project root (creative-studio-backend/.env) then parent (workspace root)
-_HERE = Path(__file__).resolve().parent.parent   # creative-studio-backend/
+_HERE = Path(__file__).resolve().parent.parent  # creative-studio-backend/
 _ENV_FILE = _HERE / ".env" if (_HERE / ".env").exists() else _HERE.parent / ".env"
 
 
@@ -30,7 +31,7 @@ class Settings(BaseSettings):
     # ── Supabase / PostgreSQL ─────────────────────────────────────────────────
     SUPABASE_URL: str
     SUPABASE_SERVICE_KEY: str
-    DATABASE_URL: str       # async  (postgresql+asyncpg://...)
+    DATABASE_URL: str  # async  (postgresql+asyncpg://...)
     DATABASE_URL_SYNC: str  # sync   (postgresql://...)  — Alembic only
 
     # ── Application ───────────────────────────────────────────────────────────

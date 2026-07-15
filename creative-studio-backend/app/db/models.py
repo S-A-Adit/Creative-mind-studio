@@ -3,21 +3,20 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
+# Use Uuid type which works across PostgreSQL (native UUID) and SQLite (VARCHAR)
 from sqlalchemy import (
+    JSON,
     Boolean,
     DateTime,
     Float,
     ForeignKey,
     Integer,
-    JSON,
     String,
     Text,
+    Uuid,
     func,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-
-# Use Uuid type which works across PostgreSQL (native UUID) and SQLite (VARCHAR)
-from sqlalchemy import Uuid
 
 
 class Base(DeclarativeBase):
@@ -30,9 +29,7 @@ class Base(DeclarativeBase):
 class Project(Base):
     __tablename__ = "projects"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     raw_idea: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(
@@ -66,9 +63,7 @@ class Project(Base):
 class BoardroomSession(Base):
     __tablename__ = "boardroom_sessions"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False
     )
@@ -102,9 +97,7 @@ class BoardroomSession(Base):
 class AgentMessage(Base):
     __tablename__ = "agent_messages"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     session_id: Mapped[uuid.UUID] = mapped_column(
         Uuid,
         ForeignKey("boardroom_sessions.id", ondelete="CASCADE"),
@@ -112,7 +105,7 @@ class AgentMessage(Base):
     )
     agent_name: Mapped[str] = mapped_column(String(100), nullable=False)
     role: Mapped[str] = mapped_column(String(50), nullable=False)  # agent | user | system
-    content: Mapped[dict] = mapped_column(JSON, nullable=False)   # structured agent output
+    content: Mapped[dict] = mapped_column(JSON, nullable=False)  # structured agent output
     sequence_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -128,9 +121,7 @@ class AgentMessage(Base):
 class Scorecard(Base):
     __tablename__ = "scorecards"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False
     )
@@ -139,7 +130,7 @@ class Scorecard(Base):
         ForeignKey("boardroom_sessions.id", ondelete="CASCADE"),
         nullable=False,
     )
-    scores: Mapped[dict] = mapped_column(JSON, nullable=False)   # dimension -> {score, reason}
+    scores: Mapped[dict] = mapped_column(JSON, nullable=False)  # dimension -> {score, reason}
     overall_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -147,7 +138,9 @@ class Scorecard(Base):
 
     # relationships
     project: Mapped[Project] = relationship("Project", back_populates="scorecards")
-    session: Mapped[BoardroomSession] = relationship("BoardroomSession", back_populates="scorecards")
+    session: Mapped[BoardroomSession] = relationship(
+        "BoardroomSession", back_populates="scorecards"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -156,9 +149,7 @@ class Scorecard(Base):
 class IdeaVersion(Base):
     __tablename__ = "idea_versions"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False
     )
@@ -179,9 +170,7 @@ class IdeaVersion(Base):
 class FollowUp(Base):
     __tablename__ = "follow_ups"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     session_id: Mapped[uuid.UUID] = mapped_column(
         Uuid,
         ForeignKey("boardroom_sessions.id", ondelete="CASCADE"),
@@ -194,4 +183,6 @@ class FollowUp(Base):
     )
 
     # relationships
-    session: Mapped[BoardroomSession] = relationship("BoardroomSession", back_populates="follow_ups")
+    session: Mapped[BoardroomSession] = relationship(
+        "BoardroomSession", back_populates="follow_ups"
+    )

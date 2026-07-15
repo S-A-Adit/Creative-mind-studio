@@ -2,6 +2,7 @@
 Integration tests for Sprint 1 API endpoints.
 Uses TestClient + in-memory SQLite. Granite is mocked.
 """
+
 from __future__ import annotations
 
 import json
@@ -9,21 +10,38 @@ import uuid
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from fastapi.testclient import TestClient
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.db.models import Base
 from app.db.client import get_db
+from app.db.models import Base
 from app.schemas.granite import GraniteResponse
-
 
 # ---------------------------------------------------------------------------
 # Mock Granite responses
 # ---------------------------------------------------------------------------
-_CD = {"originality_score": 8, "emotional_direction": "inspiring", "key_themes": ["AI"], "suggestions": ["iterate"], "ai_engine": "IBM Granite"}
-_RC = {"risks": [{"risk": "competition", "severity": "medium", "mitigation": "niche"}], "critical_assumptions": ["data sharing"], "overall_risk_level": "medium", "ai_engine": "IBM Granite"}
-_TM = {"feasibility_score": 7, "cost_estimate": "$100k", "market_size": "$10B", "competitors": ["Google"], "recommendation": "Build", "rationale": "market gap", "ai_engine": "IBM Granite"}
+_CD = {
+    "originality_score": 8,
+    "emotional_direction": "inspiring",
+    "key_themes": ["AI"],
+    "suggestions": ["iterate"],
+    "ai_engine": "IBM Granite",
+}
+_RC = {
+    "risks": [{"risk": "competition", "severity": "medium", "mitigation": "niche"}],
+    "critical_assumptions": ["data sharing"],
+    "overall_risk_level": "medium",
+    "ai_engine": "IBM Granite",
+}
+_TM = {
+    "feasibility_score": 7,
+    "cost_estimate": "$100k",
+    "market_size": "$10B",
+    "competitors": ["Google"],
+    "recommendation": "Build",
+    "rationale": "market gap",
+    "ai_engine": "IBM Granite",
+}
 _SY = {
     "strengths": ["Strong originality", "Clear gap"],
     "weaknesses": ["High competition"],
@@ -42,10 +60,30 @@ _SY = {
 
 def _mock_generate():
     responses = [
-        GraniteResponse(content=json.dumps(_CD), raw=json.dumps(_CD), fallback_used=False, ai_engine="IBM Granite"),
-        GraniteResponse(content=json.dumps(_RC), raw=json.dumps(_RC), fallback_used=False, ai_engine="IBM Granite"),
-        GraniteResponse(content=json.dumps(_TM), raw=json.dumps(_TM), fallback_used=False, ai_engine="IBM Granite"),
-        GraniteResponse(content=json.dumps(_SY), raw=json.dumps(_SY), fallback_used=False, ai_engine="IBM Granite"),
+        GraniteResponse(
+            content=json.dumps(_CD),
+            raw=json.dumps(_CD),
+            fallback_used=False,
+            ai_engine="IBM Granite",
+        ),
+        GraniteResponse(
+            content=json.dumps(_RC),
+            raw=json.dumps(_RC),
+            fallback_used=False,
+            ai_engine="IBM Granite",
+        ),
+        GraniteResponse(
+            content=json.dumps(_TM),
+            raw=json.dumps(_TM),
+            fallback_used=False,
+            ai_engine="IBM Granite",
+        ),
+        GraniteResponse(
+            content=json.dumps(_SY),
+            raw=json.dumps(_SY),
+            fallback_used=False,
+            ai_engine="IBM Granite",
+        ),
     ]
     return AsyncMock(side_effect=responses)
 
@@ -75,6 +113,7 @@ async def test_app():
                 raise
 
     from app.main import create_app
+
     application = create_app()
     application.dependency_overrides[get_db] = override_get_db
 
@@ -105,10 +144,13 @@ async def test_health_endpoint(test_app):
 @pytest.mark.asyncio
 async def test_create_project(test_app):
     async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as client:
-        resp = await client.post("/api/projects", json={
-            "title": "My AI App",
-            "raw_idea": "An app that uses AI to help people find hiking trails",
-        })
+        resp = await client.post(
+            "/api/projects",
+            json={
+                "title": "My AI App",
+                "raw_idea": "An app that uses AI to help people find hiking trails",
+            },
+        )
     assert resp.status_code == 201
     data = resp.json()
     assert data["title"] == "My AI App"
@@ -119,20 +161,26 @@ async def test_create_project(test_app):
 @pytest.mark.asyncio
 async def test_create_project_validates_short_idea(test_app):
     async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as client:
-        resp = await client.post("/api/projects", json={
-            "title": "Test",
-            "raw_idea": "short",  # less than 10 chars
-        })
+        resp = await client.post(
+            "/api/projects",
+            json={
+                "title": "Test",
+                "raw_idea": "short",  # less than 10 chars
+            },
+        )
     assert resp.status_code == 422
 
 
 @pytest.mark.asyncio
 async def test_get_project(test_app):
     async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as client:
-        create_resp = await client.post("/api/projects", json={
-            "title": "Test Project",
-            "raw_idea": "An innovative app concept using AI",
-        })
+        create_resp = await client.post(
+            "/api/projects",
+            json={
+                "title": "Test Project",
+                "raw_idea": "An innovative app concept using AI",
+            },
+        )
         pid = create_resp.json()["id"]
 
         get_resp = await client.get(f"/api/projects/{pid}")
@@ -154,10 +202,13 @@ async def test_get_project_not_found(test_app):
 async def test_run_boardroom_returns_boardroom_result(test_app):
     async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as client:
         # Create project
-        create_resp = await client.post("/api/projects", json={
-            "title": "Boardroom Test",
-            "raw_idea": "An AI-powered tool that helps musicians compose songs using emotion analysis",
-        })
+        create_resp = await client.post(
+            "/api/projects",
+            json={
+                "title": "Boardroom Test",
+                "raw_idea": "An AI-powered tool that helps musicians compose songs using emotion analysis",
+            },
+        )
         pid = create_resp.json()["id"]
 
         # Run boardroom with mocked Granite
@@ -178,10 +229,13 @@ async def test_run_boardroom_returns_boardroom_result(test_app):
 async def test_run_boardroom_stores_and_retrieves(test_app):
     """POST boardroom → GET boardroom should return identical result."""
     async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as client:
-        create_resp = await client.post("/api/projects", json={
-            "title": "Store Test",
-            "raw_idea": "A platform that connects freelance artists with local businesses",
-        })
+        create_resp = await client.post(
+            "/api/projects",
+            json={
+                "title": "Store Test",
+                "raw_idea": "A platform that connects freelance artists with local businesses",
+            },
+        )
         pid = create_resp.json()["id"]
 
         with patch("app.agents.base.generate", _mock_generate()):
@@ -202,10 +256,13 @@ async def test_run_boardroom_stores_and_retrieves(test_app):
 async def test_get_boardroom_not_found(test_app):
     """GET boardroom for project with no sessions returns 404."""
     async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as client:
-        create_resp = await client.post("/api/projects", json={
-            "title": "Empty Project",
-            "raw_idea": "An idea that has not been debated yet",
-        })
+        create_resp = await client.post(
+            "/api/projects",
+            json={
+                "title": "Empty Project",
+                "raw_idea": "An idea that has not been debated yet",
+            },
+        )
         pid = create_resp.json()["id"]
         resp = await client.get(f"/api/projects/{pid}/boardroom")
     assert resp.status_code == 404

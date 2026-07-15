@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Type
-
 import json
 import logging
+from typing import Any, Type
 
 from pydantic import BaseModel, ValidationError
 
-from app.services.granite_client import GraniteResponseError, generate
 from app.graph.state import AgentMessageDict, DebateState
+from app.services.granite_client import GraniteResponseError, generate
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +58,8 @@ class BaseAgent:
                 except ValidationError as ve:
                     logger.warning(
                         "%s output failed Pydantic validation: %s — using raw parsed dict",
-                        cls.name, ve
+                        cls.name,
+                        ve,
                     )
                     # Use raw parsed dict rather than failing hard
                     output_dict = parsed
@@ -99,9 +99,15 @@ class BaseAgent:
         """Format previous agent outputs as a readable context block for the next agent."""
         parts = []
         if state.get("creative_director_output"):
-            parts.append(f"Creative Director analysis:\n{json.dumps(state['creative_director_output'], indent=2)}")
+            parts.append(
+                f"Creative Director analysis:\n{json.dumps(state['creative_director_output'], indent=2)}"
+            )
         if state.get("risk_critic_output"):
-            parts.append(f"Risk Critic analysis:\n{json.dumps(state['risk_critic_output'], indent=2)}")
+            parts.append(
+                f"Risk Critic analysis:\n{json.dumps(state['risk_critic_output'], indent=2)}"
+            )
         if state.get("technical_market_output"):
-            parts.append(f"Technical/Market analysis:\n{json.dumps(state['technical_market_output'], indent=2)}")
+            parts.append(
+                f"Technical/Market analysis:\n{json.dumps(state['technical_market_output'], indent=2)}"
+            )
         return "\n\n".join(parts)

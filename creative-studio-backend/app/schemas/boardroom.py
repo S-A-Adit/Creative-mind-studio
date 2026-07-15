@@ -6,11 +6,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from app.schemas.agents import (
-    CreativeDirectorOutput,
-    RiskCriticOutput,
     ScoredDimension,
-    SynthesisOutput,
-    TechnicalMarketOutput,
 )
 
 
@@ -38,7 +34,9 @@ class BoardroomResult(BaseModel):
     session_id: str
 
     # ── Debate transcript ─────────────────────────────────────────────────────
-    debate: list[AgentMessageSchema] = Field(description="Full ordered transcript of agent messages")
+    debate: list[AgentMessageSchema] = Field(
+        description="Full ordered transcript of agent messages"
+    )
 
     # ── Individual agent outputs ──────────────────────────────────────────────
     creative_director: dict[str, Any] = Field(description="Creative Director structured output")
@@ -48,9 +46,13 @@ class BoardroomResult(BaseModel):
     # ── Synthesis ─────────────────────────────────────────────────────────────
     strengths: list[str] = Field(description="Key strengths identified across all agents")
     weaknesses: list[str] = Field(description="Key weaknesses identified across all agents")
-    scored_dimensions: list[ScoredDimension] = Field(description="Scored evaluation dimensions with reasons")
+    scored_dimensions: list[ScoredDimension] = Field(
+        description="Scored evaluation dimensions with reasons"
+    )
     synthesis_summary: str = Field(description="Executive summary from the Synthesis Agent")
-    overall_recommendation: str = Field(description="Final recommendation: Build | Partner | Pivot | Abandon")
+    overall_recommendation: str = Field(
+        description="Final recommendation: Build | Partner | Pivot | Abandon"
+    )
 
     # ── Meta ──────────────────────────────────────────────────────────────────
     ai_engine: str = Field(default="IBM Granite", description="AI engine used — always IBM Granite")

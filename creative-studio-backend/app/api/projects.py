@@ -6,8 +6,8 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.client import get_db
 from app.db import repository as repo
+from app.db.client import get_db
 from app.schemas.requests import CreateProjectRequest, ProjectResponse
 
 logger = logging.getLogger(__name__)

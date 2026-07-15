@@ -2,6 +2,7 @@
 Unit tests for DB models and repository helpers.
 These tests use an in-memory SQLite database — no live Supabase connection needed.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -10,9 +11,8 @@ import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.db.models import Base
 from app.db import repository as repo
-
+from app.db.models import Base
 
 # ---------------------------------------------------------------------------
 # In-memory async SQLite engine for tests
@@ -27,9 +27,7 @@ async def db_session():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    session_factory = async_sessionmaker(
-        bind=engine, class_=AsyncSession, expire_on_commit=False
-    )
+    session_factory = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
     async with session_factory() as session:
         yield session
 

@@ -5,8 +5,8 @@ import logging
 from fastapi import APIRouter
 from sqlalchemy import text
 
-from app.db.client import AsyncSessionLocal
 from app.config import settings
+from app.db.client import AsyncSessionLocal
 from app.schemas.requests import HealthResponse
 
 logger = logging.getLogger(__name__)
@@ -34,6 +34,7 @@ async def health_check() -> HealthResponse:
     granite_status = "ok"
     try:
         from app.services.granite_client import _get_model
+
         _get_model()  # initialises the SDK client if not already done
     except Exception as e:
         logger.warning("Granite health check failed: %s", e)

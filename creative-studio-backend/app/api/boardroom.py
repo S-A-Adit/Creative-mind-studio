@@ -3,15 +3,14 @@ from __future__ import annotations
 import json
 import logging
 import uuid
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.client import get_db
 from app.db import repository as repo
-from app.graph.graph import debate_graph, build_boardroom_result
+from app.db.client import get_db
+from app.graph.graph import build_boardroom_result, debate_graph
 from app.graph.state import DebateState
 from app.schemas.boardroom import BoardroomResult
 from app.schemas.requests import RunBoardroomRequest
@@ -51,9 +50,7 @@ async def run_boardroom(
         raise HTTPException(status_code=404, detail=f"Project {project_id} not found")
 
     # ── Create session record ─────────────────────────────────────────────────
-    session_record = await repo.create_session(
-        db, project_id=pid, agent_sequence=_AGENT_SEQUENCE
-    )
+    session_record = await repo.create_session(db, project_id=pid, agent_sequence=_AGENT_SEQUENCE)
     await repo.update_session_status(db, session_record.id, status="running")
 
     # ── Build seed state ──────────────────────────────────────────────────────

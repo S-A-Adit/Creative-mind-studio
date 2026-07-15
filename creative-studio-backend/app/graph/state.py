@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import operator
 from typing import Annotated, Any
+
 from typing_extensions import TypedDict
 
 
@@ -9,9 +10,9 @@ from typing_extensions import TypedDict
 # AgentMessageDict — the shape of each entry in the running transcript
 # ---------------------------------------------------------------------------
 class AgentMessageDict(TypedDict):
-    agent_name: str          # e.g. "creative_director"
-    role: str                # "agent" | "user" | "system"
-    content: dict            # structured agent output (Pydantic model dict)
+    agent_name: str  # e.g. "creative_director"
+    role: str  # "agent" | "user" | "system"
+    content: dict  # structured agent output (Pydantic model dict)
     sequence_order: int
 
 
@@ -41,4 +42,4 @@ class DebateState(TypedDict):
     # ── Meta ──────────────────────────────────────────────────────────────────
     error: str | None
     fallback_used: bool
-    ai_engine: str           # always "IBM Granite"
+    ai_engine: str  # always "IBM Granite"

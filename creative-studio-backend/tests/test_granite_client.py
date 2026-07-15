@@ -2,10 +2,11 @@
 Unit tests for the IBM Granite client.
 All tests mock the SDK — no real IBM credentials needed.
 """
+
 from __future__ import annotations
 
 import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -82,10 +83,14 @@ def test_extract_json_raises_and_preserves_raw():
 # ---------------------------------------------------------------------------
 # generate() — mocked SDK tests
 # ---------------------------------------------------------------------------
-VALID_JSON_RESPONSE = '{"originality_score": 8, "emotional_direction": "inspiring", "ai_engine": "IBM Granite"}'
-PROSE_WRAPPED_JSON = f'Sure, here is my analysis:\n{VALID_JSON_RESPONSE}\nLet me know if you need more.'
+VALID_JSON_RESPONSE = (
+    '{"originality_score": 8, "emotional_direction": "inspiring", "ai_engine": "IBM Granite"}'
+)
+PROSE_WRAPPED_JSON = (
+    f"Sure, here is my analysis:\n{VALID_JSON_RESPONSE}\nLet me know if you need more."
+)
 BROKEN_JSON = "I cannot provide a JSON response right now."
-MARKDOWN_JSON = f'```json\n{VALID_JSON_RESPONSE}\n```'
+MARKDOWN_JSON = f"```json\n{VALID_JSON_RESPONSE}\n```"
 
 
 def _make_mock_model(return_value: str):
@@ -93,9 +98,7 @@ def _make_mock_model(return_value: str):
     mock_model = MagicMock()
     mock_model.params = {}
     # Mock the chat API response structure
-    mock_model.chat.return_value = {
-        "choices": [{"message": {"content": return_value}}]
-    }
+    mock_model.chat.return_value = {"choices": [{"message": {"content": return_value}}]}
     # Also mock generate_text as fallback
     mock_model.generate_text.return_value = return_value
     return mock_model
@@ -103,7 +106,9 @@ def _make_mock_model(return_value: str):
 
 @pytest.mark.asyncio
 async def test_generate_returns_valid_response():
-    with patch("app.services.granite_client._get_model", return_value=_make_mock_model(VALID_JSON_RESPONSE)):
+    with patch(
+        "app.services.granite_client._get_model", return_value=_make_mock_model(VALID_JSON_RESPONSE)
+    ):
         response = await generate(prompt="Analyse this idea: a meditation app")
     assert response.ai_engine == "IBM Granite"
     assert response.fallback_used is False
@@ -113,7 +118,9 @@ async def test_generate_returns_valid_response():
 
 @pytest.mark.asyncio
 async def test_generate_extracts_json_from_prose():
-    with patch("app.services.granite_client._get_model", return_value=_make_mock_model(PROSE_WRAPPED_JSON)):
+    with patch(
+        "app.services.granite_client._get_model", return_value=_make_mock_model(PROSE_WRAPPED_JSON)
+    ):
         response = await generate(prompt="Analyse this idea")
     parsed = json.loads(response.content)
     assert parsed["originality_score"] == 8
@@ -122,7 +129,9 @@ async def test_generate_extracts_json_from_prose():
 
 @pytest.mark.asyncio
 async def test_generate_extracts_json_from_markdown_fence():
-    with patch("app.services.granite_client._get_model", return_value=_make_mock_model(MARKDOWN_JSON)):
+    with patch(
+        "app.services.granite_client._get_model", return_value=_make_mock_model(MARKDOWN_JSON)
+    ):
         response = await generate(prompt="Analyse this idea")
     parsed = json.loads(response.content)
     assert parsed["originality_score"] == 8
@@ -130,7 +139,9 @@ async def test_generate_extracts_json_from_markdown_fence():
 
 @pytest.mark.asyncio
 async def test_generate_raises_granite_response_error_on_broken_output():
-    with patch("app.services.granite_client._get_model", return_value=_make_mock_model(BROKEN_JSON)):
+    with patch(
+        "app.services.granite_client._get_model", return_value=_make_mock_model(BROKEN_JSON)
+    ):
         with pytest.raises(GraniteResponseError) as exc_info:
             await generate(prompt="Analyse this idea")
     assert "Could not extract valid JSON" in str(exc_info.value)

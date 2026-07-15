@@ -2,29 +2,46 @@
 Tests for Sub-Task 6: Synthesis Agent and BoardroomResult validation.
 All Granite calls are mocked.
 """
+
 from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime
-from unittest.mock import patch, AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from app.graph.graph import build_boardroom_result, debate_graph
 from app.graph.state import DebateState
-from app.graph.graph import debate_graph, build_boardroom_result
-from app.schemas.granite import GraniteResponse
 from app.schemas.boardroom import BoardroomResult
-from app.schemas.agents import ScoredDimension
+from app.schemas.granite import GraniteResponse
 from app.services.granite_client import GraniteResponseError
-
 
 # ---------------------------------------------------------------------------
 # Mock data
 # ---------------------------------------------------------------------------
-_CD = {"originality_score": 8, "emotional_direction": "inspiring", "key_themes": ["AI"], "suggestions": ["share"], "ai_engine": "IBM Granite"}
-_RC = {"risks": [{"risk": "competition", "severity": "medium", "mitigation": "niche"}], "critical_assumptions": ["data sharing"], "overall_risk_level": "medium", "ai_engine": "IBM Granite"}
-_TM = {"feasibility_score": 7, "cost_estimate": "$100k", "market_size": "$10B", "competitors": ["Google"], "recommendation": "Build", "rationale": "gap exists", "ai_engine": "IBM Granite"}
+_CD = {
+    "originality_score": 8,
+    "emotional_direction": "inspiring",
+    "key_themes": ["AI"],
+    "suggestions": ["share"],
+    "ai_engine": "IBM Granite",
+}
+_RC = {
+    "risks": [{"risk": "competition", "severity": "medium", "mitigation": "niche"}],
+    "critical_assumptions": ["data sharing"],
+    "overall_risk_level": "medium",
+    "ai_engine": "IBM Granite",
+}
+_TM = {
+    "feasibility_score": 7,
+    "cost_estimate": "$100k",
+    "market_size": "$10B",
+    "competitors": ["Google"],
+    "recommendation": "Build",
+    "rationale": "gap exists",
+    "ai_engine": "IBM Granite",
+}
 _SY = {
     "strengths": ["Strong originality", "Clear market gap"],
     "weaknesses": ["High competition", "Privacy risks"],
@@ -48,9 +65,14 @@ def _make_gr(content: dict) -> GraniteResponse:
 
 def _mock_generate_all():
     """Returns AsyncMock cycling through CD, RC, TM, Synthesis responses."""
-    return AsyncMock(side_effect=[
-        _make_gr(_CD), _make_gr(_RC), _make_gr(_TM), _make_gr(_SY),
-    ])
+    return AsyncMock(
+        side_effect=[
+            _make_gr(_CD),
+            _make_gr(_RC),
+            _make_gr(_TM),
+            _make_gr(_SY),
+        ]
+    )
 
 
 def _full_state() -> DebateState:
@@ -76,6 +98,7 @@ def _full_state() -> DebateState:
 @pytest.mark.asyncio
 async def test_synthesis_returns_valid_output():
     from app.agents.synthesis import synthesis_node
+
     state = _full_state()
     state["creative_director_output"] = _CD
     state["risk_critic_output"] = _RC
@@ -100,6 +123,7 @@ async def test_synthesis_returns_valid_output():
 async def test_synthesis_receives_all_prior_context():
     """Synthesis user_prompt must include all three prior agent outputs."""
     from app.agents.synthesis import synthesis_node
+
     state = _full_state()
     state["creative_director_output"] = _CD
     state["risk_critic_output"] = _RC
@@ -122,6 +146,7 @@ async def test_synthesis_receives_all_prior_context():
 @pytest.mark.asyncio
 async def test_synthesis_fallback_on_granite_error():
     from app.agents.synthesis import synthesis_node
+
     state = _full_state()
     state["creative_director_output"] = _CD
     state["risk_critic_output"] = _RC

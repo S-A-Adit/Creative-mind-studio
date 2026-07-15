@@ -2,18 +2,19 @@
 Unit tests for Sprint 1 agents.
 All Granite calls are mocked — no real IBM credentials needed.
 """
+
 from __future__ import annotations
 
 import json
 import uuid
-from unittest.mock import patch, AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from app.graph.state import DebateState
 from app.agents.creative_director import creative_director_node
 from app.agents.risk_critic import risk_critic_node
 from app.agents.technical_market import technical_market_node
+from app.graph.state import DebateState
 from app.schemas.agents import (
     CreativeDirectorOutput,
     RiskCriticOutput,
@@ -115,8 +116,16 @@ async def test_creative_director_message_has_correct_structure():
 # ---------------------------------------------------------------------------
 RC_OUTPUT = {
     "risks": [
-        {"risk": "High competition from Google Maps", "severity": "high", "mitigation": "Niche down to adventure travel"},
-        {"risk": "Data privacy concerns", "severity": "medium", "mitigation": "GDPR compliance from day 1"},
+        {
+            "risk": "High competition from Google Maps",
+            "severity": "high",
+            "mitigation": "Niche down to adventure travel",
+        },
+        {
+            "risk": "Data privacy concerns",
+            "severity": "medium",
+            "mitigation": "GDPR compliance from day 1",
+        },
     ],
     "critical_assumptions": ["Users will share location data", "API costs remain affordable"],
     "overall_risk_level": "medium",
