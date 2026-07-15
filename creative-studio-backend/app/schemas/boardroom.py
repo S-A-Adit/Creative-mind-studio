@@ -42,6 +42,12 @@ class BoardroomResult(BaseModel):
     creative_director: dict[str, Any] = Field(description="Creative Director structured output")
     risk_critic: dict[str, Any] = Field(description="Risk Critic structured output")
     technical_market: dict[str, Any] = Field(description="Technical/Market Agent structured output")
+    audience_analyst: dict[str, Any] = Field(description="Audience Analyst structured output")
+    marketing_strategist: dict[str, Any] = Field(
+        description="Marketing Strategist structured output"
+    )
+    ethical_auditor: dict[str, Any] = Field(description="Ethical Auditor structured output")
+    execution_planner: dict[str, Any] = Field(description="Execution Planner structured output")
 
     # ── Synthesis ─────────────────────────────────────────────────────────────
     strengths: list[str] = Field(description="Key strengths identified across all agents")

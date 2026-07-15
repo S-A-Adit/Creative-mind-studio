@@ -42,6 +42,35 @@ _TM = {
     "rationale": "gap exists",
     "ai_engine": "IBM Granite",
 }
+_AA = {
+    "audience_reactions": [
+        {"segment": "Hikers", "reaction": "positive", "confusion_points": ["Offline"]}
+    ],
+    "potential_confusion_points": ["Offline"],
+    "perceived_value_proposition": "Safety",
+    "ai_engine": "IBM Granite",
+}
+_MS = {
+    "primary_hook": "Safety hook",
+    "positioning_statement": "Safety app",
+    "distribution_channels": ["App Store"],
+    "recommended_marketing_tactics": ["Ads"],
+    "ai_engine": "IBM Granite",
+}
+_EA = {
+    "safety_rating": "green",
+    "ethical_concerns": [],
+    "brand_safety_issues": [],
+    "compliance_suggestions": [],
+    "ai_engine": "IBM Granite",
+}
+_EP = {
+    "mvp_scope": ["GPS"],
+    "key_milestones": [{"milestone": "Beta", "target_period": "Month 1"}],
+    "estimated_timeline": "2 months",
+    "ai_engine": "IBM Granite",
+}
+
 _SY = {
     "strengths": ["Strong originality", "Clear market gap"],
     "weaknesses": ["High competition", "Privacy risks"],
@@ -52,7 +81,7 @@ _SY = {
         {"dimension": "Risk Profile", "score": 6, "reason": "Medium overall risk"},
         {"dimension": "Execution Readiness", "score": 7, "reason": "Clear MVP path"},
     ],
-    "synthesis_summary": "A promising AI travel app with strong originality and a clear market gap, but facing competition and privacy challenges.",
+    "synthesis_summary": "A promising AI travel app with strong originality.",
     "overall_recommendation": "Build",
     "ai_engine": "IBM Granite",
 }
@@ -64,12 +93,16 @@ def _make_gr(content: dict) -> GraniteResponse:
 
 
 def _mock_generate_all():
-    """Returns AsyncMock cycling through CD, RC, TM, Synthesis responses."""
+    """Returns AsyncMock cycling through all 7 agents and Synthesis responses."""
     return AsyncMock(
         side_effect=[
             _make_gr(_CD),
             _make_gr(_RC),
             _make_gr(_TM),
+            _make_gr(_AA),
+            _make_gr(_MS),
+            _make_gr(_EA),
+            _make_gr(_EP),
             _make_gr(_SY),
         ]
     )
@@ -85,10 +118,15 @@ def _full_state() -> DebateState:
         "creative_director_output": None,
         "risk_critic_output": None,
         "technical_market_output": None,
+        "audience_analyst_output": None,
+        "marketing_strategist_output": None,
+        "ethical_auditor_output": None,
+        "execution_planner_output": None,
         "synthesis_output": None,
         "error": None,
         "fallback_used": False,
         "ai_engine": "IBM Granite",
+        "pivot_agents": None,
     }
 
 
@@ -103,10 +141,23 @@ async def test_synthesis_returns_valid_output():
     state["creative_director_output"] = _CD
     state["risk_critic_output"] = _RC
     state["technical_market_output"] = _TM
+    state["audience_analyst_output"] = _AA
+    state["marketing_strategist_output"] = _MS
+    state["ethical_auditor_output"] = _EA
+    state["execution_planner_output"] = _EP
     state["messages"] = [
         {"agent_name": "creative_director", "role": "agent", "content": _CD, "sequence_order": 0},
         {"agent_name": "risk_critic", "role": "agent", "content": _RC, "sequence_order": 1},
         {"agent_name": "technical_market", "role": "agent", "content": _TM, "sequence_order": 2},
+        {"agent_name": "audience_analyst", "role": "agent", "content": _AA, "sequence_order": 3},
+        {
+            "agent_name": "marketing_strategist",
+            "role": "agent",
+            "content": _MS,
+            "sequence_order": 4,
+        },
+        {"agent_name": "ethical_auditor", "role": "agent", "content": _EA, "sequence_order": 5},
+        {"agent_name": "execution_planner", "role": "agent", "content": _EP, "sequence_order": 6},
     ]
 
     with patch("app.agents.base.generate", new_callable=AsyncMock) as mock_gen:
@@ -121,7 +172,7 @@ async def test_synthesis_returns_valid_output():
 
 @pytest.mark.asyncio
 async def test_synthesis_receives_all_prior_context():
-    """Synthesis user_prompt must include all three prior agent outputs."""
+    """Synthesis user_prompt must include prior agent outputs."""
     from app.agents.synthesis import synthesis_node
 
     state = _full_state()
@@ -167,12 +218,25 @@ def _completed_state() -> DebateState:
     state["creative_director_output"] = _CD
     state["risk_critic_output"] = _RC
     state["technical_market_output"] = _TM
+    state["audience_analyst_output"] = _AA
+    state["marketing_strategist_output"] = _MS
+    state["ethical_auditor_output"] = _EA
+    state["execution_planner_output"] = _EP
     state["synthesis_output"] = _SY
     state["messages"] = [
         {"agent_name": "creative_director", "role": "agent", "content": _CD, "sequence_order": 0},
         {"agent_name": "risk_critic", "role": "agent", "content": _RC, "sequence_order": 1},
         {"agent_name": "technical_market", "role": "agent", "content": _TM, "sequence_order": 2},
-        {"agent_name": "synthesis", "role": "agent", "content": _SY, "sequence_order": 3},
+        {"agent_name": "audience_analyst", "role": "agent", "content": _AA, "sequence_order": 3},
+        {
+            "agent_name": "marketing_strategist",
+            "role": "agent",
+            "content": _MS,
+            "sequence_order": 4,
+        },
+        {"agent_name": "ethical_auditor", "role": "agent", "content": _EA, "sequence_order": 5},
+        {"agent_name": "execution_planner", "role": "agent", "content": _EP, "sequence_order": 6},
+        {"agent_name": "synthesis", "role": "agent", "content": _SY, "sequence_order": 7},
     ]
     return state
 
@@ -190,7 +254,7 @@ def test_build_boardroom_result_ai_engine():
 
 def test_build_boardroom_result_debate_transcript():
     result = build_boardroom_result(_completed_state())
-    assert len(result.debate) == 4
+    assert len(result.debate) == 8
     agent_names = [m.agent_name for m in result.debate]
     assert "creative_director" in agent_names
     assert "synthesis" in agent_names
@@ -226,7 +290,7 @@ def test_build_boardroom_result_is_json_serialisable():
 
 
 # ---------------------------------------------------------------------------
-# Full graph end-to-end — 4 agents + BoardroomResult validation
+# Full graph end-to-end — 7 agents + BoardroomResult validation
 # ---------------------------------------------------------------------------
 @pytest.mark.asyncio
 async def test_full_graph_produces_valid_boardroom_result():
@@ -242,6 +306,6 @@ async def test_full_graph_produces_valid_boardroom_result():
     assert isinstance(result, BoardroomResult)
     assert result.ai_engine == "IBM Granite"
     assert result.overall_recommendation == "Build"
-    assert len(result.debate) == 4
+    assert len(result.debate) == 8
     assert len(result.scored_dimensions) == 5
     assert result.fallback_used is False

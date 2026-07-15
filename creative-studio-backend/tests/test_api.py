@@ -42,6 +42,34 @@ _TM = {
     "rationale": "market gap",
     "ai_engine": "IBM Granite",
 }
+_AA = {
+    "audience_reactions": [
+        {"segment": "Hikers", "reaction": "positive", "confusion_points": ["Offline"]}
+    ],
+    "potential_confusion_points": ["Offline"],
+    "perceived_value_proposition": "Safety",
+    "ai_engine": "IBM Granite",
+}
+_MS = {
+    "primary_hook": "Safety hook",
+    "positioning_statement": "Safety app",
+    "distribution_channels": ["App Store"],
+    "recommended_marketing_tactics": ["Ads"],
+    "ai_engine": "IBM Granite",
+}
+_EA = {
+    "safety_rating": "green",
+    "ethical_concerns": [],
+    "brand_safety_issues": [],
+    "compliance_suggestions": [],
+    "ai_engine": "IBM Granite",
+}
+_EP = {
+    "mvp_scope": ["GPS"],
+    "key_milestones": [{"milestone": "Beta", "target_period": "Month 1"}],
+    "estimated_timeline": "2 months",
+    "ai_engine": "IBM Granite",
+}
 _SY = {
     "strengths": ["Strong originality", "Clear gap"],
     "weaknesses": ["High competition"],
@@ -75,6 +103,30 @@ def _mock_generate():
         GraniteResponse(
             content=json.dumps(_TM),
             raw=json.dumps(_TM),
+            fallback_used=False,
+            ai_engine="IBM Granite",
+        ),
+        GraniteResponse(
+            content=json.dumps(_AA),
+            raw=json.dumps(_AA),
+            fallback_used=False,
+            ai_engine="IBM Granite",
+        ),
+        GraniteResponse(
+            content=json.dumps(_MS),
+            raw=json.dumps(_MS),
+            fallback_used=False,
+            ai_engine="IBM Granite",
+        ),
+        GraniteResponse(
+            content=json.dumps(_EA),
+            raw=json.dumps(_EA),
+            fallback_used=False,
+            ai_engine="IBM Granite",
+        ),
+        GraniteResponse(
+            content=json.dumps(_EP),
+            raw=json.dumps(_EP),
             fallback_used=False,
             ai_engine="IBM Granite",
         ),
@@ -220,7 +272,7 @@ async def test_run_boardroom_returns_boardroom_result(test_app):
     assert data["ai_engine"] == "IBM Granite"
     assert data["project_id"] == pid
     assert data["overall_recommendation"] == "Build"
-    assert len(data["debate"]) == 4
+    assert len(data["debate"]) == 8
     assert len(data["scored_dimensions"]) == 5
     assert data["fallback_used"] is False
 

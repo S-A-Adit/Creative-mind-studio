@@ -110,4 +110,20 @@ class BaseAgent:
             parts.append(
                 f"Technical/Market analysis:\n{json.dumps(state['technical_market_output'], indent=2)}"
             )
+        if state.get("audience_analyst_output"):
+            parts.append(
+                f"Audience Analyst analysis:\n{json.dumps(state['audience_analyst_output'], indent=2)}"
+            )
+        if state.get("marketing_strategist_output"):
+            parts.append(
+                f"Marketing Strategist analysis:\n{json.dumps(state['marketing_strategist_output'], indent=2)}"
+            )
+        if state.get("ethical_auditor_output"):
+            parts.append(
+                f"Ethical Auditor analysis:\n{json.dumps(state['ethical_auditor_output'], indent=2)}"
+            )
+        if state.get("execution_planner_output"):
+            parts.append(
+                f"Execution Planner analysis:\n{json.dumps(state['execution_planner_output'], indent=2)}"
+            )
         return "\n\n".join(parts)

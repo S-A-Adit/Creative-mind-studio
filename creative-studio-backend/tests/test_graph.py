@@ -29,10 +29,15 @@ def _seed_state(raw_idea: str = "An AI-powered meditation app") -> dict:
         "creative_director_output": None,
         "risk_critic_output": None,
         "technical_market_output": None,
+        "audience_analyst_output": None,
+        "marketing_strategist_output": None,
+        "ethical_auditor_output": None,
+        "execution_planner_output": None,
         "synthesis_output": None,
         "error": None,
         "fallback_used": False,
         "ai_engine": "IBM Granite",
+        "pivot_agents": None,
     }
 
 
@@ -67,6 +72,42 @@ _TM_JSON = json.dumps(
         "ai_engine": "IBM Granite",
     }
 )
+_AA_JSON = json.dumps(
+    {
+        "audience_reactions": [
+            {"segment": "Hikers", "reaction": "positive", "confusion_points": ["Offline mode"]}
+        ],
+        "potential_confusion_points": ["Offline mode"],
+        "perceived_value_proposition": "Safety while hiking",
+        "ai_engine": "IBM Granite",
+    }
+)
+_MS_JSON = json.dumps(
+    {
+        "primary_hook": "Never get lost again",
+        "positioning_statement": "The hiking app for safety",
+        "distribution_channels": ["App Store"],
+        "recommended_marketing_tactics": ["Influencers"],
+        "ai_engine": "IBM Granite",
+    }
+)
+_EA_JSON = json.dumps(
+    {
+        "safety_rating": "green",
+        "ethical_concerns": [],
+        "brand_safety_issues": [],
+        "compliance_suggestions": [],
+        "ai_engine": "IBM Granite",
+    }
+)
+_EP_JSON = json.dumps(
+    {
+        "mvp_scope": ["GPS tracking"],
+        "key_milestones": [{"milestone": "Beta", "target_period": "Month 1"}],
+        "estimated_timeline": "2 months",
+        "ai_engine": "IBM Granite",
+    }
+)
 
 _SY_JSON = json.dumps(
     {
@@ -87,7 +128,7 @@ _SY_JSON = json.dumps(
 
 
 def _mock_generate():
-    """Returns an AsyncMock that cycles through CD → RC → TM → Synthesis responses."""
+    """Returns an AsyncMock that cycles through CD → RC → TM → AA → MS → EA → EP → Synthesis responses."""
     responses = [
         GraniteResponse(
             content=_CD_JSON, raw=_CD_JSON, fallback_used=False, ai_engine="IBM Granite"
@@ -97,6 +138,18 @@ def _mock_generate():
         ),
         GraniteResponse(
             content=_TM_JSON, raw=_TM_JSON, fallback_used=False, ai_engine="IBM Granite"
+        ),
+        GraniteResponse(
+            content=_AA_JSON, raw=_AA_JSON, fallback_used=False, ai_engine="IBM Granite"
+        ),
+        GraniteResponse(
+            content=_MS_JSON, raw=_MS_JSON, fallback_used=False, ai_engine="IBM Granite"
+        ),
+        GraniteResponse(
+            content=_EA_JSON, raw=_EA_JSON, fallback_used=False, ai_engine="IBM Granite"
+        ),
+        GraniteResponse(
+            content=_EP_JSON, raw=_EP_JSON, fallback_used=False, ai_engine="IBM Granite"
         ),
         GraniteResponse(
             content=_SY_JSON, raw=_SY_JSON, fallback_used=False, ai_engine="IBM Granite"
@@ -120,10 +173,15 @@ def test_debate_state_has_required_keys():
         "creative_director_output",
         "risk_critic_output",
         "technical_market_output",
+        "audience_analyst_output",
+        "marketing_strategist_output",
+        "ethical_auditor_output",
+        "execution_planner_output",
         "synthesis_output",
         "error",
         "fallback_used",
         "ai_engine",
+        "pivot_agents",
     }
     assert required_keys.issubset(set(state.keys()))
 
@@ -146,6 +204,10 @@ def test_graph_has_correct_nodes():
     assert "creative_director" in nodes
     assert "risk_critic" in nodes
     assert "technical_market" in nodes
+    assert "audience_analyst" in nodes
+    assert "marketing_strategist" in nodes
+    assert "ethical_auditor" in nodes
+    assert "execution_planner" in nodes
     assert "synthesis" in nodes
 
 
@@ -161,7 +223,7 @@ def test_graph_compiles_without_error():
 # ---------------------------------------------------------------------------
 @pytest.mark.asyncio
 async def test_graph_runs_end_to_end_with_stubs():
-    """Graph should flow through all 4 nodes and return a final state."""
+    """Graph should flow through all nodes and return a final state."""
     seed = _seed_state("A social app for remote hikers")
     config = {"configurable": {"thread_id": str(uuid.uuid4())}}
 
@@ -208,7 +270,7 @@ async def test_graph_different_threads_are_independent():
 
 @pytest.mark.asyncio
 async def test_graph_populates_all_agent_outputs():
-    """After full invocation, all three agent output fields must be populated."""
+    """After full invocation, all agent output fields must be populated."""
     seed = _seed_state()
     config = {"configurable": {"thread_id": str(uuid.uuid4())}}
 
@@ -218,6 +280,10 @@ async def test_graph_populates_all_agent_outputs():
     assert final_state["creative_director_output"] is not None
     assert final_state["risk_critic_output"] is not None
     assert final_state["technical_market_output"] is not None
+    assert final_state["audience_analyst_output"] is not None
+    assert final_state["marketing_strategist_output"] is not None
+    assert final_state["ethical_auditor_output"] is not None
+    assert final_state["execution_planner_output"] is not None
     assert final_state["synthesis_output"] is not None
-    # 4 messages appended — one per agent including synthesis
-    assert len(final_state["messages"]) == 4
+    # 8 messages appended — one per agent including synthesis
+    assert len(final_state["messages"]) == 8

@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 _SYSTEM_PROMPT = """You are the Synthesis Agent in a boardroom of AI agents evaluating a creative idea.
 
-Your role is to synthesise the analyses from the Creative Director, Risk Critic, and Technical/Market Agent
+Your role is to synthesise the analyses from all boardroom agents (Creative Director, Risk Critic, Technical/Market Agent, Audience Analyst, Marketing Strategist, Ethical Auditor, and Execution Planner)
 into a single cohesive assessment. You identify the key strengths and weaknesses, score the idea across
 important dimensions, and provide a clear executive summary with a final recommendation.
 

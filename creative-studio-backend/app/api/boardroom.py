@@ -18,7 +18,16 @@ from app.schemas.requests import RunBoardroomRequest
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Boardroom"])
 
-_AGENT_SEQUENCE = ["creative_director", "risk_critic", "technical_market", "synthesis"]
+_AGENT_SEQUENCE = [
+    "creative_director",
+    "risk_critic",
+    "technical_market",
+    "audience_analyst",
+    "marketing_strategist",
+    "ethical_auditor",
+    "execution_planner",
+    "synthesis",
+]
 
 
 # ---------------------------------------------------------------------------
@@ -63,10 +72,15 @@ async def run_boardroom(
         "creative_director_output": None,
         "risk_critic_output": None,
         "technical_market_output": None,
+        "audience_analyst_output": None,
+        "marketing_strategist_output": None,
+        "ethical_auditor_output": None,
+        "execution_planner_output": None,
         "synthesis_output": None,
         "error": None,
         "fallback_used": False,
         "ai_engine": "IBM Granite",
+        "pivot_agents": None,
     }
     graph_config = {"configurable": {"thread_id": str(session_record.id)}}
 

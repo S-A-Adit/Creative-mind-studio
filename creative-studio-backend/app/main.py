@@ -42,11 +42,12 @@ def create_app() -> FastAPI:
     )
 
     # ── Routers ───────────────────────────────────────────────────────────────
-    from app.api import boardroom, health, projects
+    from app.api import boardroom, endpoints_sprint2, health, projects
 
     application.include_router(health.router)
     application.include_router(projects.router, prefix="/api")
     application.include_router(boardroom.router, prefix="/api")
+    application.include_router(endpoints_sprint2.router, prefix="/api")
 
     return application
 

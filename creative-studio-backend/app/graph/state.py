@@ -37,9 +37,14 @@ class DebateState(TypedDict):
     creative_director_output: dict[str, Any] | None
     risk_critic_output: dict[str, Any] | None
     technical_market_output: dict[str, Any] | None
+    audience_analyst_output: dict[str, Any] | None
+    marketing_strategist_output: dict[str, Any] | None
+    ethical_auditor_output: dict[str, Any] | None
+    execution_planner_output: dict[str, Any] | None
     synthesis_output: dict[str, Any] | None
 
     # ── Meta ──────────────────────────────────────────────────────────────────
     error: str | None
     fallback_used: bool
     ai_engine: str  # always "IBM Granite"
+    pivot_agents: list[str] | None
