@@ -79,7 +79,7 @@ function validateStep2(data: Step2Data): ValidationErrors {
   return errors;
 }
 
-function validateStep3(_data: Step3Data): ValidationErrors {
+function validateStep3(): ValidationErrors {
   // Step 3 is optional — no required fields
   return {};
 }
@@ -250,7 +250,7 @@ export function useProjectWizard(onProjectCreated: () => void): UseProjectWizard
     switch (currentStep) {
       case 1: errs = validateStep1(formData.step1); break;
       case 2: errs = validateStep2(formData.step2); break;
-      case 3: errs = validateStep3(formData.step3); break;
+      case 3: errs = validateStep3(); break;
       case 4: errs = validateStep4(formData.step4); break;
     }
     setErrors(errs);

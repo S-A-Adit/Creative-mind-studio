@@ -4,10 +4,14 @@
  *
  * App.tsx — root component.
  *
- * Switches between three top-level experiences:
- *   1. Marketing landing page  (view = 'marketing')
- *   2. Auth / Onboarding flow  (view = 'auth')
- *   3. Application shell        (view = 'app')
+ * Switches between six top-level experiences:
+ *   1. Marketing landing page      (view = 'marketing')
+ *   2. Auth / Onboarding flow      (view = 'auth')
+ *   3. Application shell           (view = 'app')
+ *   4. Project creation wizard     (view = 'create-project')
+ *   5. Project Overview            (view = 'project-overview')
+ *   6. Strategy War Room           (view = 'strategy')
+ *   7. Virality Twin Workspace     (view = 'virality-twin')
  *
  * Change DEFAULT_VIEW to start on a different screen during development.
  */
@@ -18,11 +22,22 @@ import { AuthRouter } from './app/auth/AuthRouter';
 import { LayoutProvider } from './lib/LayoutContext';
 import { MainLayout } from './components/layout/MainLayout';
 import { DashboardPage } from './app/dashboard/page';
+import { ProjectCreationWizard } from './app/create-project/ProjectCreationWizard';
+import { ProjectOverviewPage } from './app/dashboard/projects/projectId/overview/ProjectOverviewPage';
+import { StrategyWarRoomPage } from './app/dashboard/projects/projectId/strategy/StrategyWarRoomPage';
+import { ViralityTwinPage } from './app/dashboard/projects/projectId/virality-twin/ViralityTwinPage';
 
-type AppView = 'marketing' | 'auth' | 'app';
+type AppView =
+  | 'marketing'
+  | 'auth'
+  | 'app'
+  | 'create-project'
+  | 'project-overview'
+  | 'strategy'
+  | 'virality-twin';
 
-// ← Change this to 'marketing' | 'auth' | 'app' to jump to a specific screen
-const DEFAULT_VIEW: AppView = 'app';
+// ← Change this to jump to a specific screen during development
+const DEFAULT_VIEW: AppView = 'virality-twin';
 
 export default function App() {
   const [view, setView] = useState<AppView>(DEFAULT_VIEW);
@@ -37,6 +52,55 @@ export default function App() {
         initialPage="login"
         onAuthenticated={() => setView('app')}
       />
+    );
+  }
+
+  if (view === 'create-project') {
+    return (
+      <LayoutProvider>
+        <MainLayout>
+          <ProjectCreationWizard
+            onClose={() => setView('app')}
+            onProjectCreated={() => setView('project-overview')}
+          />
+        </MainLayout>
+      </LayoutProvider>
+    );
+  }
+
+  if (view === 'project-overview') {
+    return (
+      <LayoutProvider>
+        <MainLayout>
+          <ProjectOverviewPage onBack={() => setView('app')} />
+        </MainLayout>
+      </LayoutProvider>
+    );
+  }
+
+  if (view === 'strategy') {
+    return (
+      <LayoutProvider>
+        <MainLayout>
+          <StrategyWarRoomPage
+            onBack={() => setView('project-overview')}
+            onContinueToResearch={() => setView('virality-twin')}
+          />
+        </MainLayout>
+      </LayoutProvider>
+    );
+  }
+
+  if (view === 'virality-twin') {
+    return (
+      <LayoutProvider>
+        <MainLayout>
+          <ViralityTwinPage
+            onBack={() => setView('strategy')}
+            onContinue={() => setView('app')}
+          />
+        </MainLayout>
+      </LayoutProvider>
     );
   }
 
