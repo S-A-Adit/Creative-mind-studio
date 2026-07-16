@@ -4,7 +4,7 @@
  *
  * App.tsx — root component.
  *
- * Switches between six top-level experiences:
+ * Switches between eight top-level experiences:
  *   1. Marketing landing page      (view = 'marketing')
  *   2. Auth / Onboarding flow      (view = 'auth')
  *   3. Application shell           (view = 'app')
@@ -12,6 +12,7 @@
  *   5. Project Overview            (view = 'project-overview')
  *   6. Strategy War Room           (view = 'strategy')
  *   7. Virality Twin Workspace     (view = 'virality-twin')
+ *   8. Research Lab                (view = 'research-lab')
  *
  * Change DEFAULT_VIEW to start on a different screen during development.
  */
@@ -26,6 +27,7 @@ import { ProjectCreationWizard } from './app/create-project/ProjectCreationWizar
 import { ProjectOverviewPage } from './app/dashboard/projects/projectId/overview/ProjectOverviewPage';
 import { StrategyWarRoomPage } from './app/dashboard/projects/projectId/strategy/StrategyWarRoomPage';
 import { ViralityTwinPage } from './app/dashboard/projects/projectId/virality-twin/ViralityTwinPage';
+import { ResearchLabPage } from './app/dashboard/projects/projectId/research/ResearchLabPage';
 
 type AppView =
   | 'marketing'
@@ -34,10 +36,11 @@ type AppView =
   | 'create-project'
   | 'project-overview'
   | 'strategy'
-  | 'virality-twin';
+  | 'virality-twin'
+  | 'research-lab';
 
 // ← Change this to jump to a specific screen during development
-const DEFAULT_VIEW: AppView = 'virality-twin';
+const DEFAULT_VIEW: AppView = 'research-lab';
 
 export default function App() {
   const [view, setView] = useState<AppView>(DEFAULT_VIEW);
@@ -97,6 +100,19 @@ export default function App() {
         <MainLayout>
           <ViralityTwinPage
             onBack={() => setView('strategy')}
+            onContinue={() => setView('research-lab')}
+          />
+        </MainLayout>
+      </LayoutProvider>
+    );
+  }
+
+  if (view === 'research-lab') {
+    return (
+      <LayoutProvider>
+        <MainLayout>
+          <ResearchLabPage
+            onBack={() => setView('virality-twin')}
             onContinue={() => setView('app')}
           />
         </MainLayout>
