@@ -4,7 +4,7 @@
  *
  * App.tsx — root component.
  *
- * Switches between ten top-level experiences:
+ * Switches between twelve top-level experiences:
  *   1. Marketing landing page      (view = 'marketing')
  *   2. Auth / Onboarding flow      (view = 'auth')
  *   3. Application shell           (view = 'app')
@@ -15,6 +15,8 @@
  *   8. Research Lab                (view = 'research-lab')
  *   9. Script & Story Room         (view = 'script-room')
  *  10. Asset Room                  (view = 'asset-room')
+ *  11. Video Editor Workspace      (view = 'editor')
+ *  12. Review & Approval Room      (view = 'review')
  *
  * Change DEFAULT_VIEW to start on a different screen during development.
  */
@@ -32,6 +34,8 @@ import { ViralityTwinPage } from './app/dashboard/projects/projectId/virality-tw
 import { ResearchLabPage } from './app/dashboard/projects/projectId/research/ResearchLabPage';
 import { ScriptRoomPage } from './app/dashboard/projects/projectId/script/ScriptRoomPage';
 import { AssetRoomPage } from './app/dashboard/projects/projectId/assets/AssetRoomPage';
+import { VideoEditorWorkspace } from './app/dashboard/projects/projectId/editor/VideoEditorWorkspace';
+import { ReviewApprovalRoom } from './app/dashboard/projects/projectId/review/ReviewApprovalRoom';
 
 type AppView =
   | 'marketing'
@@ -43,10 +47,12 @@ type AppView =
   | 'virality-twin'
   | 'research-lab'
   | 'script-room'
-  | 'asset-room';
+  | 'asset-room'
+  | 'editor'
+  | 'review';
 
 // ← Change this to jump to a specific screen during development
-const DEFAULT_VIEW: AppView = 'asset-room';
+const DEFAULT_VIEW: AppView = 'review';
 
 export default function App() {
   const [view, setView] = useState<AppView>(DEFAULT_VIEW);
@@ -145,7 +151,31 @@ export default function App() {
         <MainLayout>
           <AssetRoomPage
             onBack={() => setView('script-room')}
-            onContinue={() => setView('app')}
+            onContinue={() => setView('editor')}
+          />
+        </MainLayout>
+      </LayoutProvider>
+    );
+  }
+
+  if (view === 'editor') {
+    return (
+      <LayoutProvider>
+        <MainLayout>
+          <VideoEditorWorkspace
+            onBack={() => setView('asset-room')}
+          />
+        </MainLayout>
+      </LayoutProvider>
+    );
+  }
+
+  if (view === 'review') {
+    return (
+      <LayoutProvider>
+        <MainLayout>
+          <ReviewApprovalRoom
+            onBack={() => setView('editor')}
           />
         </MainLayout>
       </LayoutProvider>
