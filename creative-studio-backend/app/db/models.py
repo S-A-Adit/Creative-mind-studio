@@ -45,6 +45,28 @@ class Project(Base):
         nullable=False,
     )
 
+    # ---------------------------------------------------------------------------
+    # Workflow / Stage Handoff fields (Sprint 3)
+    # ---------------------------------------------------------------------------
+    # Niche / content category (e.g. "Documentary / Investigative", "Gaming")
+    niche: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    # Output format (e.g. "Long-form YouTube video", "YouTube Short")
+    format: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    # Team composition (solo | creator-editor | team | agency | client)
+    team_mode: Mapped[str] = mapped_column(String(50), nullable=False, default="solo")
+    # Workflow profile preset (Quick Creator | Standard Production | Evidence-Heavy
+    #                          | Capture-First | Agency / Client | Custom)
+    workflow_profile: Mapped[str] = mapped_column(
+        String(100), nullable=False, default="Standard Production"
+    )
+    # The currently active stage name (Strategy | Research | Script | Production
+    #                                   | Edit | Review | Publish | Analytics)
+    current_stage: Mapped[str] = mapped_column(String(50), nullable=False, default="Strategy")
+    # Full ordered list of stage objects: [{name, status, completed_at, gates_passed}, ...]
+    workflow_stages: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    # Arbitrary project context: audience, goals, constraints, available_assets, etc.
+    project_metadata: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+
     # relationships
     sessions: Mapped[list[BoardroomSession]] = relationship(
         "BoardroomSession", back_populates="project", cascade="all, delete-orphan"
